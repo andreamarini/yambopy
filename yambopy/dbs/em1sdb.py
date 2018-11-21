@@ -91,7 +91,7 @@ class YamboStaticScreeningDB(object):
             self.X[nq] = re + 1j*im
          
             #close database
-            database.close()
+            db.close()
 
     def saveDBS(self,path):
         """
@@ -115,7 +115,7 @@ class YamboStaticScreeningDB(object):
             database = Dataset("%s/%s"%(path,fname),'r+')
             database.variables['X_Q_%d'%(nq+1)][0,0,:] = X[nq].real
             database.variables['X_Q_%d'%(nq+1)][0,1,:] = X[nq].imag
-            database.close()
+            db.close()
 
     def writetxt(self,filename='em1s.dat',ng1=0,ng2=0,volume=False):
         """

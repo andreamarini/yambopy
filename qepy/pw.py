@@ -507,20 +507,9 @@ class PwIn(object):
                         cell_parameters[i] = [ float(x)*a for x in next(lines).split() ]
             if self.cell_units == 'angstrom' or self.cell_units == 'bohr':
                 if 'celldm(1)' in self.system: del self.system['celldm(1)']
-        elif ibrav == 4:
-            a = float(self.system['celldm(1)'])
-            c = float(self.system['celldm(3)'])
-            self.cell_parameters = [[   a,          0,  0],
-                                    [-a/2,sqrt(3)/2*a,  0],
-                                    [   0,          0,c*a]]
-        elif ibrav == 2:
-            a = float(self.system['celldm(1)'])
-            self.cell_parameters = [[ -a/2,   0, a/2],
-                                    [    0, a/2, a/2],
-                                    [ -a/2, a/2,   0]]
-        else:
-            print 'ibrav = %d not implemented'%ibrav
-            exit(1)
+            if 'celldm(1)' not in list(self.system.keys()):
+                a = np.linalg.norm(cell_parameters[0])
+            self._cell_parameters = cell_parameters
         
     def read_kpoints(self):
         lines = iter(self.file_lines)
