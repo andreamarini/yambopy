@@ -3,12 +3,13 @@
 # Run a Silicon groundstate calculation using Quantum Espresso
 #
 from __future__ import print_function, division
+from builtins import zip
 import sys
 from qepy import *
 import argparse
 from schedulerpy import *
 
-kpoints = [12,12,1]
+kpoints = [6,6,1]
 kpoints_double = [24,24,1]
 qpoints = [3,3,1]
 layer_separation = 12
@@ -68,6 +69,7 @@ def scf(folder='scf'):
         os.mkdir(folder)
     qe = get_inputfile()
     qe.control['calculation'] = "'scf'"
+    qe.kpoints = kpoints
     qe.write('%s/%s.scf'%(folder,prefix))
  
 #nscf
@@ -123,6 +125,13 @@ def update_positions(pathin,pathout):
     e = PwXML(prefix,path=pathin)
     pos = e.get_scaled_positions()
 
+    q = PwIn('%s/%s.scf'%(pathin,prefix))
+    print("old celldm(1)", q.system['celldm(1)'])
+    q.system['celldm(1)'] = e.cell[0][0]
+    print("new celldm(1)", q.system['celldm(1)'])
+    q.atoms = list(zip([a[0] for a in q.atoms],pos))
+    q.write('%s/%s.scf'%(pathout,prefix))
+
     #open relaxed cell
     qin  = PwIn('%s/%s.scf'%(pathin,prefix))
 
@@ -133,7 +142,7 @@ def update_positions(pathin,pathout):
     print("old celldm(1)", qin.system['celldm(1)'])
     qout.system['celldm(1)'] = e.cell[0][0]
     print("new celldm(1)", qout.system['celldm(1)'])
-    qout.atoms = zip([a[0] for a in qin.atoms],pos)
+    qout.atoms = list(zip([a[0] for a in qin.atoms],pos))
     
     #write scf
     qout.write('%s/%s.scf'%(pathout,prefix))
