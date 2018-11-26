@@ -77,5 +77,7 @@ from yambopy.rt.rt_movie import *
 #data
 from yambopy.data import *
 
+#data
+from yambopy.gs import *
 
 
