@@ -60,6 +60,7 @@ class GS(Cmd):
         #pack      = args.nopack
         #text      = args.notext
         #draw      = args.nodraw
+ 	print abs(2)
 	if args.relax:
          relax()
 	if args.scf:
