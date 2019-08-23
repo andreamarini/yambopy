@@ -1,8 +1,25 @@
-# Copyright (C) 2018 Henrique Pereira Coutada Miranda, Alejandro Molina Sanchez
-# All rights reserved.
 #
-# This file is part of yambopy
+#       Copyright (C) 2018-2019 the YAMBOpy team
+#      https://github.com/henriquemiranda/yambopy
 #
+# Authors (see AUTHORS file for details): HM AMS
+# 
+# This file is distributed under the terms of the GNU 
+# General Public License. You can redistribute it and/or 
+# modify it under the terms of the GNU General Public 
+# License as published by the Free Software Foundation; 
+# either version 2, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will 
+# be useful, but WITHOUT ANY WARRANTY; without even the 
+# implied warranty of MERCHANTABILITY or FITNESS FOR A 
+# PARTICULAR PURPOSE.  See the GNU General Public License 
+# for more details.
+#
+# You should have received a copy of the GNU General Public 
+# License along with this program; if not, write to the Free 
+# Software Foundation, Inc., 59 Temple Place - Suite 330,Boston, 
+# MA 02111-1307, USA or visit http://www.gnu.org/copyleft/gpl.txt.
 #
 import os
 import re
@@ -35,7 +52,7 @@ class PwIn(object):
         .. code-block :: python
 
             qe = PwIn()
-            qe.atoms = [['N',[ 0.0, 0.0,0.0]],
+            qe._atoms = [['N',[ 0.0, 0.0,0.0]],
                         ['B',[1./3,2./3,0.0]]]
             qe.atypes = {'B': [10.811, "B.pbe-mt_fhi.UPF"],
                          'N': [14.0067,"N.pbe-mt_fhi.UPF"]}
@@ -63,6 +80,8 @@ class PwIn(object):
 
     def __init__(self):
         """ TODO: specify the required parameters """
+        #atoms
+        self._atoms = []
         #kpoints
         self.ktype = "automatic"
         self.kpoints = [1,1,1]
@@ -102,18 +121,22 @@ class PwIn(object):
         return new
 
     @classmethod
-    def from_structure_dict(cls,structure,kpoints=None,ecut=None,pseudo_dir='.',conv_thr=None):
+    def from_structure_dict(cls,structure,kpoints=None,pseudo_dir='.',conv_thr=None):
         pwi = cls()
         pwi.set_structure(structure)
+        pwi.control['prefix'] = structure['prefix']
         if kpoints: pwi.set_kpoints(kpoints)
-        if ecut: pwi.set_ecut(ecut)
+        if structure["ecut"]: 
+         pwi.set_ecut(structure["ecut"])
         if pseudo_dir: pwi.pseudo_dir = pseudo_dir
         if conv_thr: pwi.electrons['conv_thr'] = conv_thr
+        if structure["soc"]: 
+         pwi.set_spinorbit()
         return pwi
       
     @property
     def natoms(self): 
-        return len(self.atoms)
+        return len(self._atoms)
 
     @property
     def pseudo_dir(self):
@@ -159,7 +182,7 @@ class PwIn(object):
         """ Return an instance of a structure dictionary
         """
         lattice = self.get_lattice()
-        return dict(lattice=lattice,atypes=self.atypes,atoms=self.atoms)
+        return dict(lattice=lattice,atypes=self.atypes,atoms=self._atoms)
 
     def change_cell_parameters(self):
         """
@@ -332,7 +355,7 @@ class PwIn(object):
         """ Get an array with the masses of all the atoms
         """
         masses = []
-        for atom in self.atoms:
+        for atom in self._atoms:
             atype = self.atypes[atom[0]]
             mass = float(atype[0])
             masses.append(mass)
@@ -345,8 +368,8 @@ class PwIn(object):
         """ Get the lattice parameters, postions of the atoms and chemical symbols
         """
         cell = self.cell_parameters
-        sym = [atom[0] for atom in self.atoms]
-        pos = [atom[1] for atom in self.atoms]
+        sym = [atom[0] for atom in self._atoms]
+        pos = [atom[1] for atom in self._atoms]
         if self.atomic_pos_type == 'bohr':
             pos = car_red(pos,cell)
         return cell, pos, sym
@@ -361,7 +384,7 @@ class PwIn(object):
         atoms = []
         for atype,x,y,z in atoms_str:
             atoms.append([atype,list(map(float,[x,y,z]))])
-        self.atoms = atoms
+        self._atoms = atoms
 
     def set_atoms_ase(self,atoms):
         """ set the atomic postions using a Atoms datastructure from ase
@@ -369,7 +392,7 @@ class PwIn(object):
         # we will write down the cell parameters explicitly
         self.ibrav = 0
         self.cell_parameters = atoms.get_cell()
-        self.atoms = list(zip(atoms.get_chemical_symbols(),atoms.get_scaled_positions()))
+        self._atoms = list(zip(atoms.get_chemical_symbols(),atoms.get_scaled_positions()))
 
     def displace(self,cart_mode,displacement,masses=None):
         """ Displace the atoms acoording to a phonon mode """
@@ -381,7 +404,7 @@ class PwIn(object):
         #apply displacement
         atomic_car_pos_0 = self.atomic_car_pos
         atoms_car_pos_disp = []
-        for i,(atype,apos) in enumerate(self.atoms):
+        for i,(atype,apos) in enumerate(self._atoms):
             delta = cart_mode[i].real*displacement/sqrt(masses[i])
             atom = [atype, atomic_car_pos_0[i]+delta]
             atoms_car_pos_disp.append( atom )
@@ -393,14 +416,14 @@ class PwIn(object):
     def atomic_red_pos(self):
         pos = []
         for i in range(self.natoms):
-            pos.append(self.atoms[i][1])
+            pos.append(self._atoms[i][1])
         return pos
 
     @property
     def atomic_car_pos(self):
         pos = []
         for i in range(self.natoms):
-            red_pos = self.atoms[i][1]
+            red_pos = self._atoms[i][1]
             pos.append(red_car([red_pos],self.cell_parameters)[0])
         return pos
 
@@ -425,7 +448,7 @@ class PwIn(object):
                 for i in range(int(self.system["nat"])):
                     atype, x,y,z = next(lines).split()
                     atoms.append([atype,[float(i) for i in (x,y,z)]])
-        self.atoms = atoms
+        self._atoms = atoms
         self.atomic_pos_type = atomic_pos_type.replace('{','').replace('}','').strip().split()[1]
 
     @property
@@ -588,7 +611,7 @@ class PwIn(object):
 
         #print atomic positions
         app( "ATOMIC_POSITIONS { %s }"%self.atomic_pos_type )
-        for atom in self.atoms:
+        for atom in self._atoms:
             app( "%3s %14.10lf %14.10lf %14.10lf" % (atom[0], atom[1][0], atom[1][1], atom[1][2]) )
 
         #print kpoints

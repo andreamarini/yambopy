@@ -7,6 +7,14 @@ Yambo official website: http://www.yambo-code.org/
 
 Yambo Github page: https://github.com/yambo-code/yambo
 
+Installation
+------------
+Local installation
+>python setup.py develop --user
+
+Global installation
+>python setup.py install
+
 Documentation
 -------------
 You can read the documentation in:
@@ -31,7 +39,8 @@ Requirements
 - yambo (>4.0.0): http://www.yambo-code.org/
 - numpy: http://www.numpy.org/
 - matplotlib: http://matplotlib.org/
-- netCDF4: http://unidata.github.io/netcdf4-python/
+- netCDF4: http://unidata.github.io/netcdf4-python/ => pip install netcdf4 --user (AM)
+- HDF5 => aptitude install libhdf5-serial-dev package (AM)
 - Quantum Espresso (optional): http://www.quantum-espresso.org/
 
 TODO
@@ -39,7 +48,7 @@ TODO
 - Automatic convergence tests (increase a certain variable until the final result changes less than a certain threshold)
 
 Authors
-------
+-------
 - [Henrique Pereira Coutada Miranda](http://henriquemiranda.github.io/)
 - [Alejandro Molina Sanchez](http://alexmoratalla.github.io/)
 - Fulvio Paleari

@@ -4,10 +4,10 @@
 # This file is part of yambopy
 #
 #from __future__ import print_function
-from qepy import *
+from qepy import PwIn
 #from schedulerpy import *
 #import argparse
-from yambopy import *
+#from yambopy import *
 #from yambopy.plot  import *
 import os
 
