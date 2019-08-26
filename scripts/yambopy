@@ -24,7 +24,8 @@
 #
 #from yambopy import *
 #from yambopy.gs import gs
-import scf
+from qepy.data.list_the_materials import list_the_materials
+from qepy.gs.scf import scf
 import argparse
 import sys
 
@@ -69,6 +70,7 @@ class pw(Cmd):
         if len(args) < 2:
             print(self.__doc__)
             parser.print_help()
+            list_the_materials()
             exit(0)
         #
         args = parser.parse_args(args)
@@ -86,12 +88,11 @@ class pw(Cmd):
         #pack      = args.nopack
         #text      = args.notext
         #draw      = args.nodraw
- 	#print abs(2)
 	if args.relax:
          relax()
 	if args.scf:
          print("Calling scf:")
-     	 scf.scf(args.material)
+     	 scf(args.material)
      	 #pack_files_in_folder()
 	#if args.nscf:
     	 #nscf()

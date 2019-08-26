@@ -39,12 +39,11 @@ from_structure_dict
   | def set_ecut(self,ecut):
   | def set_spinorbit(self):
 
-    def set_nscf(self,nbnd,nscf_kpoints=None,conv_thr=1e-8,
-    def set_relax(self,cell_dofree=None):
-    def set_path(self,path):
-    def set_atoms_string(self,string):
-    def set_atoms_ase(self,atoms):
-
+  def set_nscf(self,nbnd,nscf_kpoints=None,conv_thr=1e-8,
+  def set_relax(self,cell_dofree=None):
+  def set_path(self,path):
+  def set_atoms_string(self,string):
+  def set_atoms_ase(self,atoms):
 
 """
 
@@ -52,7 +51,25 @@ __all__ = [
     "Materials",
 ]
 #
-Materials = { "BN":[], "MoS2":[], "Si":[]}
+Materials = { "BN":[], "MoS2":[], "Si":[], "SnSe":[] }
+#
+#SnSe
+lattice = dict(ibrav=8,celldm1=7.983170616241,celldm2=1.07403522475,celldm3=2.80393048143)
+atypes = dict(Se=[78.96, "Se.pbe-hgh.UPF"],
+              Sn=[118.71,"Sn.pbe-hgh.UPF"])
+atoms = [
+         ['Se',[0.750000000,  0.470341162,  0.856116949]],
+         ['Se',[0.250000000,  0.970339124,  0.643882544]],
+         ['Se',[0.250000000,  0.529658838,  0.143883051]],
+         ['Se',[0.750000000,  0.029660876,  0.356117456]],
+         ['Sn',[0.750000000,  0.114552087,  0.122326048]],
+         ['Sn',[0.250000000,  0.614550918,  0.377674478]],
+         ['Sn',[0.250000000,  0.885447913,  0.877673952]],
+         ['Sn',[0.750000000,  0.385449082,  0.622325522]]
+        ]
+gs_kpts=[6,6,3]
+Materials["SnSe"]= dict(lattice=lattice,atypes=atypes,atoms=atoms,prefix="'SnSe'",gs_kpts=gs_kpts) 
+Materials["SnSe"]["ecut"]=80
 #
 #BN
 lattice = dict(ibrav=4,celldm1=4.7,celldm3=12)

@@ -125,12 +125,16 @@ class PwIn(object):
         pwi = cls()
         pwi.set_structure(structure)
         pwi.control['prefix'] = structure['prefix']
+        if "gs_kpts" in structure: 
+         pwi.set_kpoints(structure["gs_kpts"])
+        elif kpoints: 
+         pwi.set_kpoints(kpoints)
         if kpoints: pwi.set_kpoints(kpoints)
-        if structure["ecut"]: 
+        if "ecut" in structure: 
          pwi.set_ecut(structure["ecut"])
         if pseudo_dir: pwi.pseudo_dir = pseudo_dir
         if conv_thr: pwi.electrons['conv_thr'] = conv_thr
-        if structure["soc"]: 
+        if "soc" in structure: 
          pwi.set_spinorbit()
         return pwi
       
